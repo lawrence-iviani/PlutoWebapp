@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<!--[if lt IE 9]><script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script><![endif]-->
+	<title></title>
+	<meta name="keywords" content="" />
+	<meta name="description" content="" />
+	<link href="style.css" rel="stylesheet">
+  
+  
+  
+  <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" />
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
+
+<!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script> -->
+<!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script> -->
+<!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/keyboardteleopjs/current/keyboardteleop.min.js"></script> -->
+
+<script  src="eventemitter2.js"></script>
+<script  src="roslib.min.js"></script>
+    <!-- <script  src="keyboardteleop.js"></script>-->
+
+
+    <!-- SLIDER ROS PART-->
+<script type="text/javascript">
+
+    var x = 0;
+    var y = 0;
+    var z = 0;
+    
+   var topic_vel = '/cmd_vel';
+   var topic_odom = '/odom'
+   var topic_raw_vel = '/raw_vel'
+   var ros_url = '10.42.0.1'
+   var rbServer = new ROSLIB.Ros({
+    //url : 'ws://10.42.0.1:9090'
+    url : 'ws://'+ros_url+':9090'
+ });
+
+ // This function is called upon the rosbridge connection event
+ rbServer.on('connection', function() {
+     // Write appropriate message to #feedback div when successfully connected to rosbridge
+     console.log('Connected to websocket server.');
+     var fbDiv = document.getElementById('feedback');
+     fbDiv.innerHTML += "<p>Connected to websocket server.</p>";
+ });
+
+  // This function is called when there is an error attempting to connect to rosbridge
+  rbServer.on('error', function(error) {
+      // Write appropriate message to #feedback div upon error when attempting to connect to rosbridge
+      console.log('Error connecting to websocket server: ', error);
+      var fbDiv = document.getElementById('feedback');
+      fbDiv.innerHTML += "<p>Error connecting to websocket server.</p>";
+  });
+
+  // This function is called when the connection to rosbridge is closed
+  rbServer.on('close', function() {
+      // Write appropriate message to #feedback div upon closing connection to rosbridge
+      console.log('Connection to websocket server closed.');
+      var fbDiv = document.getElementById('feedback');
+      fbDiv.innerHTML += "<p>Connection to websocket server closed.</p>";
+   });
+
+  // These lines create a topic object as defined by roslibjs
+  var cmdVelTopic = new ROSLIB.Topic({
+      ros : rbServer,
+      name : topic_vel,
+      messageType : 'geometry_msgs/Twist'
+  });
+
+  /* This function
+   - retrieves numeric values from the text boxes
+   - assigns these values to the appropriate values in the twist message
+   - publishes the message to the cmd_vel topic.
+   */
+  function pubCmdVel(keyCode) {
+      /**
+      Set the appropriate values on the twist message object according to values in text boxes
+      It seems that turtlesim only uses the x property of the linear object 
+      and the z property of the angular object
+      **/
+      // These lines create a message that conforms to the structure of the Twist defined in our ROS installation
+      // It initalizes all properties to zero. They will be set to appropriate values before we publish this message.
+      var twist = new ROSLIB.Message({
+          linear : {
+              x : 0.0,
+              y : 0.0,
+              z : 0.0
+          },
+          angular : {
+              x : 0.0,
+              y : 0.0,
+              z : 0.0
+          }
+      });
+      var linearXY   =  ($('#speed-slider').slider('value') / 100.0);
+      var angularZ  =  ($('#rotation-slider').slider('value')* 3.14159/ 180.0);
+      // used to check for changes in speed
+      var oldX = x;
+      var oldY = y;
+      var oldZ = z;
+      // check if it is OK to send the command
+      var pub = true;
+      // get values from text input fields. Note for simplicity we are not validating.
+     // linearX = 0 + Number(document.getElementById('linearXText').value);
+     // angularZ = 0 + Number(document.getElementById('angularZText').value);
+
+      // Set the appropriate values on the message object
+
+
+      // check which key was pressed
+    switch (keyCode) {
+      case 65:
+        // turn left
+        x = 0.0;
+        y = 0.0;
+        z = angularZ;
+        break;
+      case 87:
+        // up
+        x = linearXY;
+        y = 0.0;
+        z = 0.0;
+        break;
+      case 68:
+        // turn right
+        x = 0.0;
+        y = 0.0;
+        z = -1.0 * angularZ;
+        break;
+      case 88:
+        // down
+        x = -1.0 * linearXY;
+        y = 0.0;
+        z = 0.0;
+        break;
+      case 69:
+        // fwd right
+        x = 0.707 * linearXY;
+        y = -0.707 * linearXY;
+        z = 0.0;
+        break;
+      case 81:
+        // fwd left
+        x = 0.707 * linearXY;
+        y = 0.707 * linearXY;
+        z = 0.0;
+        break;
+      case 90:
+        // rwd right
+        x = -0.707 * linearXY;
+        y = -0.707 * linearXY;
+        z = 0.0;
+        break;
+      case 67:
+        // rwd left
+        x = -0.707 * linearXY;
+        y = 0.707 * linearXY;
+        z = 0.0;
+        break;
+      case 83:
+        y = 0;
+        x = 0;
+        z = 0;
+        break;
+      default:
+        pub = false;
+    }
+
+    // publish the command
+    if (pub === true) {
+        var twist = new ROSLIB.Message({
+        angular : {
+          x : 0,
+          y : 0,
+          z : z
+        },
+        linear : {
+          x : x,
+          y : y,
+          z : 0
+        }
+        });
+
+        cmdVelTopic.publish(twist);
+        // check for changes
+        if (oldX !== x || oldY !== y || oldZ !== z) {
+            new Event('change', { twist: twist });
+            //var event = new Event('change', { twist: twist });
+            // event.emit(); not sure hot to emit an event
+        }
+        var vel_feedback = document.getElementById('vel_feedback');
+        vel_feedback.innerHTML = '<p>SET x=(' + x.toPrecision(2) +  ') y=(' + y.toPrecision(2) + ')  z=(' + z.toPrecision(2) +')</p>';
+    } else {
+        var vel_feedback = document.getElementById('vel_feedback');
+        vel_feedback.innerHTML = '<p>Invalid command speed</p>';
+    }
+  }
+  
+  function init() {
+    // Connecting to ROS.
+    
+    
+    // Create a UI slider using JQuery UI.
+    $('#speed-slider').slider({
+      range : 'min',
+      min : 0,
+      max : 300, // 300 -> 3 m/sec
+      value : 90,
+      slide : function(event, ui) {
+        // Change the speed label.
+        $('#speed-label').html('Speed: ' + ui.value + '%');
+        // Scale the speed.
+        //(ui.value / 100.0);
+        //pubMessage();
+      }
+    });
+
+    // Set the initial speed .
+    $('#speed-label').html('Linear Speed: ' + ($('#speed-slider').slider('value')) + ' m/s');
+   // teleop.scale = ($('#speed-slider').slider('value') / 100.0);
+    
+    $('#rotation-slider').slider({
+      range : 'min',
+      min : -180,
+      max : 180,
+      value : 0,
+      slide : function(event, ui) {
+        // Change the speed label.
+        $('#rotation-label').html('Rotation Speed: ' + ui.value + ' deg/sec');
+        // Scale the speed.
+        //pubMessage();
+      }
+    });
+
+        // Set the initial speed
+      $('#rotation-label').html('Speed: ' + ($('#speed-slider').slider('value')) + '%');
+
+  }
+
+    // Subscribing to  Topics
+    // ----------------------
+    // velocity
+    var vel_listener = new ROSLIB.Topic({
+        ros : rbServer,
+        name : topic_vel,
+        messageType : 'geometry_msgs/Twist'
+    });
+    var subscribe = vel_listener.subscribe(function(message) {
+        console.log('Received message on ' + vel_listener.name + ': ' + message.data);
+        var vel_feedback = document.getElementById('vel_feedback');
+        vel_feedback.innerHTML = '<p>CHANGING</p>';
+        var z = (message.angular.z).toPrecision(2);
+        var x = (message.linear.x).toPrecision(2);
+        var y = (message.linear.y).toPrecision(2);
+        vel_feedback.innerHTML = '<p>VEL RCV x(' + x +  ') y(' + y + ')  z(' + z +')</p>';
+    });
+    // odom
+    var odom_listener = new ROSLIB.Topic({
+        ros : rbServer,
+        name : topic_odom,
+        messageType : 'nav_msgs/Odometry'
+    });
+    odom_listener.subscribe(function(message) {
+        console.log('Received message on ' + odom_listener.name + ': ' + message.data);
+        var odom_feedback = document.getElementById('odom_feedback');
+        odom_feedback.innerHTML = '<p>CHANGING</p>';
+        //echo /odom/twist/twist/linear/x
+        var zt = (message.twist.twist.angular.z).toPrecision(2);
+        var yt = (message.twist.twist.linear.y).toPrecision(2);
+        var xt = (message.twist.twist.linear.x).toPrecision(2);
+        var zp = (message.pose.pose.position.z).toPrecision(2);
+        var xp = (message.pose.pose.position.x).toPrecision(2);
+        var yp = (message.pose.pose.position.y).toPrecision(2);
+
+       // /odom/pose/pose/position/x
+        odom_feedback.innerHTML = '<div>ODOM RCV</div>' +
+                                  '<p>TWIST     x(' + xt +  ') y(' + yt + ') z(' + zt +')</p>' +
+                                  '<p>POSITION  x(' + xp +  ') y(' + yp + ') z(' + zp +')</p>';
+    });
+
+    //raw_vel
+    var raw_vel_listener = new ROSLIB.Topic({
+        ros : rbServer,
+        name : topic_raw_vel,
+        messageType : 'lino_msgs/Velocities'
+    });
+    raw_vel_listener.subscribe(function(message) {
+        console.log('Received message on ' + raw_vel_listener.name + ': ' + message.data);
+        var rawvel_feedback = document.getElementById('rawvel_feedback');
+        rawvel_feedback.innerHTML = '<p>CHANGING</p>';
+        var x = message.linear_x;
+        var y = message.linear_y;
+        var z = message.angular_z;
+        rawvel_feedback.innerHTML = '<p>RAWVEL RCV x=(' + x +  ') y=(' + y + ') z(=' + z +')</p>';
+    });
+
+
+</script>
+  
+</head>
+
+<body onload="init()">
+
+<div class="wrapper">
+
+	<header class="header">
+		<div id="feedback"></div>
+	</header><!-- .header-->
+
+	<div class="middle">
+
+		<div class="container">
+			<main class="content">
+				<strong>Content:</strong> Sed placerat accumsan ligula. Aliquam felis magna, congue quis, tempus eu, aliquam vitae, ante. Cras neque justo, ultrices at, rhoncus a, facilisis eget, nisl. Quisque vitae pede. Nam et augue. Sed a elit. Ut vel massa. Suspendisse nibh pede, ultrices vitae, ultrices nec, mollis non, nibh. In sit amet pede quis leo vulputate hendrerit. Cras laoreet leo et justo auctor condimentum. Integer id enim. Suspendisse egestas, dui ac egestas mollis, libero orci hendrerit lacus, et malesuada lorem neque ac libero. Morbi tempor pulvinar pede. Donec vel elit.
+			</main><!-- .content -->
+		</div><!-- .container-->
+
+		<aside class="left-sidebar">
+            <p id="vel_feedback">CMD_VEL</p>
+            <p id="rawvel_feedback">RAW_VEL</p>
+            <p id="odom_feedback">ODOM</p>
+		</aside><!-- .left-sidebar -->
+
+	</div><!-- .middle-->
+
+</div><!-- .wrapper -->
+
+<footer class="footer">
+<table style="width:100%">
+      <tr>
+        <td width="45%">
+          <div class="btn-group" style="width:33.3%">
+            <button onclick="pubCmdVel(81)" style="width:33.3%">(Q) <i class="arrow upleft"></i></button>
+            <button onclick="pubCmdVel(87)" style="width:33.3%">(W) <i class="arrow up"></i></button>
+            <button onclick="pubCmdVel(69)" style="width:33.3%">(R) <i class="arrow upright"></i></button>
+          </div>
+          <div class="btn-group" style="width:33.3%">
+            <button onclick="pubCmdVel(65)" style="width:33.3%">(A) <i class="arrow left"></i></button>
+            <button onclick="pubCmdVel(83)" style="width:33.3%">(S)TOP</button>
+            <button onclick="pubCmdVel(68)" style="width:33.3%">(D) <i class="arrow right"></i></button>
+          </div>
+          <div class="btn-group" style="width:33.3%">
+            <button onclick="pubCmdVel(90)" style="width:33.3%">(Z) <i class="arrow downleft"></i></button>
+            <button onclick="pubCmdVel(88)" style="width:33.3%">(X) <i class="arrow down"></i></button>
+            <button onclick="pubCmdVel(67)" style="width:33.3%">(C) <i class="arrow downright"></i></button>
+          </div>
+        </td>
+        <td width="25%">
+            <div id="speed-label"></div>
+            <div id="speed-slider"></div>
+            <div id="rotation-label"></div>
+            <div id="rotation-slider"></div>
+        </td>
+        <td width="30%">
+            <div class="row">
+                <div class="col-3">Column 1</div> <!-- 25% -->
+                <div class="col-9">Column 2</div> <!-- 75% -->
+            </div>
+        </td>
+      </tr>
+        
+</footer><!-- .footer -->
+
+</body>
+</html>
