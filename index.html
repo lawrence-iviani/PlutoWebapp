@@ -17,14 +17,19 @@
     <link rel="stylesheet" type="text/css" href="js/jquery/jquery-ui.css" />
     <script type="text/javascript" src="js/jquery/jquery-1.8.0.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui.min.js"></script>
-
+    <script type="text/javascript" src="js/jquery/createjs.min.js"></script>
 
     <!-- Local Copy-->
 <!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script> -->
 <!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script> -->
 <!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/keyboardteleopjs/current/keyboardteleop.min.js"></script> -->
+<!--    <script type="text/javascript" src="http://cdn.robotwebtools.org/ros2djs/current/ros2d.min.js"></script>-->
+<!--    <script type="text/javascript" src="http://cdn.robotwebtools.org/nav2djs/current/nav2d.min.js"></script>-->
+
+    <script type="text/javascript" src="js/easeljs.min.js"></script>
     <script  src="js/eventemitter2.js"></script>
     <script  src="js/roslib.min.js"></script>
+    <script type="text/javascript" src="js/ros2d.js"></script>
 
     <!-- SLIDER ROS PART-->
     <script type="text/javascript">
@@ -125,32 +130,34 @@
         break;
       case 69:
         // fwd right
-        x = 0.707 * linearXY;
-        y = -0.707 * linearXY;
-        z = 0.0;
+        x = linearXY;
+        y = 0;
+        z =  -1.0 * angularZ;
         break;
       case 81:
         // fwd left
         x = 0.707 * linearXY;
-        y = 0.707 * linearXY;
-        z = 0.0;
+        y = 0;
+        z = angularZ;
         break;
       case 90:
         // rwd right
-        x = -0.707 * linearXY;
-        y = -0.707 * linearXY;
-        z = 0.0;
+        x = linearXY;
+        y = 0;
+        z =  -1.0 * angularZ;
         break;
       case 67:
         // rwd left
-        x = -0.707 * linearXY;
-        y = 0.707 * linearXY;
-        z = 0.0;
+        x = linearXY;
+        y = 0;
+        z =  angularZ;
         break;
       case 83:
         y = 0;
         x = 0;
         z = 0;
+        // block an eventual send continuolsy
+          if (send_cmd_continuosly) {   sendContinuously(); }
         break;
       default:
         pub = false;
@@ -186,7 +193,6 @@
     }
   }
 
-  
   function sendOnce() {
       x = document.getElementById("in_vel_x").value/1.0;
       y = document.getElementById("in_vel_y").value/1.0;
@@ -221,6 +227,47 @@
       }
   }
   
+  function activateService(service){
+      var startPlutoNode = new ROSLIB.Service({
+          ros : rbServer,
+          name : '/add_two_ints',
+          serviceType : ' pluto_node_handler/PlutoService'
+      });
+      var request = new ROSLIB.ServiceRequest({
+          request : service
+      });
+      startPlutoNode.callService(request);
+  }
+
+    function stopService(service){
+        var stopPlutoNode = new ROSLIB.Service({
+            ros : rbServer,
+            name : '/stop_pluto_node',
+            serviceType : ' pluto_node_handler/PlutoService'
+        });
+        var request = new ROSLIB.ServiceRequest({
+            request : service
+        });
+        stopPlutoNode.callService(request);
+        // var addTwoIntsClient = new ROSLIB.Service({
+        //     ros : ros,
+        //     name : '/add_two_ints',
+        //     serviceType : 'rospy_tutorials/AddTwoInts'
+        // });
+        //
+        // var request = new ROSLIB.ServiceRequest({
+        //     a : 1,
+        //     b : 2
+        // });
+        //
+        // addTwoIntsClient.callService(request, function(result) {
+        //     console.log('Result for service call on '
+        //         + addTwoIntsClient.name
+        //         + ': '
+        //         + result.sum);
+        // });
+    }
+
   function init() {
 
         // Create a UI slider using JQuery UI.
@@ -262,6 +309,24 @@
       });
       // set initial rate
       $('#send-cmd-rate-label').html('Rate cmd:  ' + ($('#send-cmd-rate-slider').slider('value')).toPrecision(2) + ' msg per sec');
+
+
+      //Navigation, experimental
+      // Create the main viewer.
+      var viewer = new ROS2D.Viewer({
+          divID : 'map',
+          width : 600,
+          height : 500
+      });
+      // Setup the map client.
+      var gridClient = new ROS2D.OccupancyGridClient({
+          ros : rbServer,
+          rootObject : viewer.scene
+      });
+      // Scale the canvas to fit to the map
+      gridClient.on('change', function(){
+          viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
+      });
   }
 
     // Subscribing to  Topics
@@ -321,8 +386,12 @@
         rawvel_feedback.innerHTML = '<p>RAWVEL RCV x=(' + x +  ') y=(' + y + ') z(=' + z +')</p>';
     });
 
+    // TO ADD <p id="rawodom_feedback">RAW_ODOM</p>
+    //     <p id="imu_feedback">IMU_DATA</p>
 
-</script>
+    // Calling a service
+    // ----------------
+    </script>
   
 </head>
 
@@ -338,7 +407,23 @@
 
 		<div class="container">
 			<main class="content">
-				<strong>Content:</strong> Sed placerat accumsan ligula. Aliquam felis magna, congue quis, tempus eu, aliquam vitae, ante. Cras neque justo, ultrices at, rhoncus a, facilisis eget, nisl. Quisque vitae pede. Nam et augue. Sed a elit. Ut vel massa. Suspendisse nibh pede, ultrices vitae, ultrices nec, mollis non, nibh. In sit amet pede quis leo vulputate hendrerit. Cras laoreet leo et justo auctor condimentum. Integer id enim. Suspendisse egestas, dui ac egestas mollis, libero orci hendrerit lacus, et malesuada lorem neque ac libero. Morbi tempor pulvinar pede. Donec vel elit.
+                <div id="map"></div>
+                <div class="btn-group" >
+                    <button id="btn-start-minimal" onclick="activateService('minimal')">Start minimal</button>
+                    <button id="btn-stop-minimal" onclick="stopService('minimal')">Stop minimal</button>
+
+                    <button id="btn-start-bringup" onclick="activateService('bringup')">Start bringup</button>
+                    <button id="btn-stop-bringup" onclick="stopService('bringup')">Stop bringup</button>
+
+                    <button id="btn-start-slam" onclick="activateService('slam')" >Start slam</button>
+                    <button id="btn-stop-slam" onclick="stopService('slam')" >Stop slam</button>
+
+                    <button id="btn-start-navigation" onclick="activateService('navigation')">Start nav</button>
+                    <button id="btn-stop-navigation" onclick="stopService('navigation')">Stop nav</button>
+                </div>
+                <div class="btn-group" >
+
+                </div>
 			</main><!-- .content -->
 		</div><!-- .container-->
 
@@ -346,6 +431,8 @@
             <p id="vel_feedback">CMD_VEL</p>
             <p id="rawvel_feedback">RAW_VEL</p>
             <p id="odom_feedback">ODOM</p>
+            <p id="rawodom_feedback">RAW_ODOM</p>
+            <p id="imu_feedback">IMU_DATA</p>
 		</aside><!-- .left-sidebar -->
 
 	</div><!-- .middle-->
@@ -366,9 +453,9 @@
                 <button onclick="pubCmdVel(68)" style="width:33.3%">(D) <i class="arrow right"></i></button>
             </div>
             <div class="btn-group">
-                <button onclick="pubCmdVel(90)" style="width:33.3%">(Z) <i class="arrow downleft"></i></button>
+                <button onclick="pubCmdVel(67)" style="width:33.3%">(Z) <i class="arrow downleft"></i></button>
                 <button onclick="pubCmdVel(88)" style="width:33.3%">(X) <i class="arrow down"></i></button>
-                <button onclick="pubCmdVel(67)" style="width:33.3%">(C) <i class="arrow downright"></i></button>
+                <button onclick="pubCmdVel(90)" style="width:33.3%">(C) <i class="arrow downright"></i></button>
             </div>
         </div>
             <div class="colfooter-2">

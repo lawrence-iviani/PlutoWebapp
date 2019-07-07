@@ -218,6 +218,18 @@ i {
 .colfooter-4 {width: 10%;}
 .colfooter-5 {width: 10%;}
 
+[class*="colmain-"] {
+	float: left;
+	padding: 5px;
+}
+
+.colmain-1 {width: 25%;}
+.colmain-2 {width: 25%;}
+.colmain-3 {width: 25%;}
+.colmain-4 {width: 25%;}
+
+
+
 .vel_text_header{
 	color: whitesmoke;
 	background-color: #4CAF50;
