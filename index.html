@@ -9,22 +9,11 @@
 	<link href="style.css" rel="stylesheet">
 
 
-    <!-- Local Copy-->
-<!--<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" />-->
-<!--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>-->
-<!--<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>-->
-
     <link rel="stylesheet" type="text/css" href="js/jquery/jquery-ui.css" />
     <script type="text/javascript" src="js/jquery/jquery-1.8.0.min.js"></script>
     <script type="text/javascript" src="js/jquery/jquery-ui.min.js"></script>
     <script type="text/javascript" src="js/jquery/createjs.min.js"></script>
 
-    <!-- Local Copy-->
-<!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script> -->
-<!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script> -->
-<!-- <script type="text/javascript" src="http://cdn.robotwebtools.org/keyboardteleopjs/current/keyboardteleop.min.js"></script> -->
-<!--    <script type="text/javascript" src="http://cdn.robotwebtools.org/ros2djs/current/ros2d.min.js"></script>-->
-<!--    <script type="text/javascript" src="http://cdn.robotwebtools.org/nav2djs/current/nav2d.min.js"></script>-->
 
     <script type="text/javascript" src="js/easeljs.min.js"></script>
     <script  src="js/eventemitter2.js"></script>
@@ -195,7 +184,7 @@
 
   function sendOnce() {
       x = document.getElementById("in_vel_x").value/1.0;
-      y = document.getElementById("in_vel_y").value/1.0;
+      //y = document.getElementById("in_vel_y").value/1.0;
       z = document.getElementById("in_rot_z").value* 3.14159/ 180.0;
       var twist = new ROSLIB.Message({
           angular : {
@@ -205,7 +194,7 @@
           },
           linear : {
               x : x,
-              y : y,
+              y : 0,
               z : 0
           }
       });
@@ -287,11 +276,9 @@
             img_src = service_img[i];
             read_status(request, img_src);
         }
-
     }
 
   function init() {
-
         // Create a UI slider using JQuery UI.
         $('#speed-slider').slider({
         range : 'min',
@@ -455,27 +442,7 @@
           y_start_pan = mousePos.y
       }, false);
 
-
-      /*//var mouse_pressed = false
-      viewer.scene.canvas.addEventListener('onmouseup', function(evt) {
-          var mousePos = getMousePos(viewer.scene.canvas, evt);
-        //  x_start_pan = mousePos.x - viewer_HEIGHT/2
-       //   y_start_pan = mousePos.y - viewer_WIDTH/2
-
-          //if (mouse_pressed) {
-            //  panView.pan(mousePos.x, mousePos.y);
-          //} else {
-            //  x_start_pan = mousePos.x
-            //  y_start_pan = mousePos.y
-           //   panView.startPan (x_start_pan, y_start_pan);
-          panView.startPan (x_start_pan, y_start_pan);
-          panView.pan(mousePos.x,mousePos.y);
-          //}
-          //mouse_pressed=!mouse_pressed
-      }, false);
-*/
-
-      // EXPERIMENTAL NOT TESTED
+      // Some ideas for navigation
       //function cancel() {
       //    gridClient.navigator.cancelGoal();
       //}
@@ -542,8 +509,7 @@
     // TO ADD <p id="rawodom_feedback">RAW_ODOM</p>
     //     <p id="imu_feedback">IMU_DATA</p>
 
-    // Calling a service
-    // ----------------
+
 
 	</script>
   
@@ -571,8 +537,8 @@
             <p id="vel_feedback">CMD_VEL</p>
             <p id="rawvel_feedback">RAW_VEL</p>
             <p id="odom_feedback">ODOM</p>
-            <p id="rawodom_feedback">RAW_ODOM</p>
-            <p id="imu_feedback">IMU_DATA</p>
+<!--            <p id="rawodom_feedback">RAW_ODOM</p>-->
+<!--            <p id="imu_feedback">IMU_DATA</p>-->
             <div class="btn-group" >
                 <button id="btn-start-minimal" onclick="activateService('minimal')">Start minimal</button>
                 <button id="btn-stop-minimal" onclick="stopService('minimal')">Stop minimal</button>
