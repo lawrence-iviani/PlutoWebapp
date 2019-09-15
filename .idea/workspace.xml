@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="856da8e9-0613-4f32-954c-eb768ce58bcd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/style.css" beforeDir="false" afterPath="$PROJECT_DIR$/style.css" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -21,22 +19,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1232">
-              <caret line="378" selection-start-line="378" selection-end-line="378" />
-              <folding>
-                <element signature="e#3612#3705#0" />
-                <element signature="e#6688#7351#0" />
-                <element signature="e#7383#7830#0" />
-                <element signature="e#7934#7946#0" />
-                <element signature="e#8809#9645#0" />
-                <element signature="e#7852#9310#0" />
-                <element signature="e#9428#9529#0" />
-                <element signature="e#9593#10052#0" />
-                <element signature="e#10108#10208#0" />
-                <element signature="e#10257#11191#0" />
-                <element signature="e#11253#11359#0" />
-                <element signature="e#11411#11840#0" />
-              </folding>
+            <state relative-caret-position="549">
+              <caret line="645" column="37" selection-start-line="645" selection-start-column="37" selection-end-line="645" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -44,8 +28,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/style.css">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="994">
-              <caret line="225" column="10" selection-start-line="225" selection-start-column="1" selection-end-line="225" selection-end-column="10" />
+            <state relative-caret-position="1751">
+              <caret line="103" selection-start-line="103" selection-end-line="103" />
             </state>
           </provider>
         </entry>
@@ -53,13 +37,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/ros2d.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="313">
-              <caret line="1063" column="26" lean-forward="true" selection-start-line="1063" selection-start-column="26" selection-end-line="1063" selection-end-column="26" />
+            <state relative-caret-position="18071">
+              <caret line="1063" column="26" selection-start-line="1063" selection-start-column="26" selection-end-line="1063" selection-end-column="26" />
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+      </list>
+    </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
@@ -84,6 +75,13 @@
       <find>col-</find>
       <find>x_v</find>
       <find>x_ve</find>
+      <find>0.</find>
+      <find>contai</find>
+      <find>left-sidebar</find>
+      <find>sendContinuously</find>
+      <find>return</find>
+      <find>navigation</find>
+      <find>minimal_status</find>
     </findStrings>
     <replaceStrings>
       <replace>(2)</replace>
@@ -99,6 +97,7 @@
         <option value="$PROJECT_DIR$/ros2d.js" />
         <option value="$PROJECT_DIR$/nav2D.js" />
         <option value="$PROJECT_DIR$/style.css" />
+        <option value="$PROJECT_DIR$/zoom_example.html" />
         <option value="$PROJECT_DIR$/index.html" />
       </list>
     </option>
@@ -124,13 +123,12 @@
             <path>
               <item name="PlutoWebapp" type="b2602c69:ProjectViewProjectNode" />
               <item name="PlutoWebapp" type="462c0819:PsiDirectoryNode" />
-              <item name="js" type="462c0819:PsiDirectoryNode" />
+              <item name="img" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="PlutoWebapp" type="b2602c69:ProjectViewProjectNode" />
               <item name="PlutoWebapp" type="462c0819:PsiDirectoryNode" />
               <item name="js" type="462c0819:PsiDirectoryNode" />
-              <item name="jquery" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -140,6 +138,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
@@ -166,6 +165,20 @@
       </list>
     </option>
   </component>
+  <component name="RunManager" selected="JavaScript Debug.index.html">
+    <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/PlutoWebapp/index.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <configuration name="zoom_example.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/PlutoWebapp/zoom_example.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.index.html" />
+        <item itemvalue="JavaScript Debug.zoom_example.html" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -179,12 +192,28 @@
       <workItem from="1561795546935" duration="37999000" />
       <workItem from="1562008154517" duration="8981000" />
       <workItem from="1562024906271" duration="5717000" />
-      <workItem from="1562272892197" duration="7364000" />
+      <workItem from="1562272892197" duration="7433000" />
+      <workItem from="1567944952690" duration="443000" />
+      <workItem from="1567947574694" duration="1788000" />
+      <workItem from="1567949390982" duration="1784000" />
+      <workItem from="1567951288519" duration="1809000" />
+      <workItem from="1567953125046" duration="1654000" />
+      <workItem from="1567955449867" duration="1620000" />
+      <workItem from="1567957276150" duration="1808000" />
+      <workItem from="1567959131260" duration="1049000" />
+      <workItem from="1567964257294" duration="290000" />
+      <workItem from="1568561881436" duration="1786000" />
+      <workItem from="1568563702145" duration="1077000" />
+      <workItem from="1568565799763" duration="1897000" />
+      <workItem from="1568567722166" duration="1793000" />
+      <workItem from="1568569804924" duration="2027000" />
+      <workItem from="1568573744939" duration="2368000" />
+      <workItem from="1568576812186" duration="37000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="60061000" />
+    <option name="totallyTimeSpent" value="83360000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1592" y="-8" width="1616" height="916" extended-state="6" />
@@ -230,38 +259,25 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/ros2d.js">
+    <entry file="file://$PROJECT_DIR$/zoom_example.html" />
+    <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="313">
-          <caret line="1063" column="26" lean-forward="true" selection-start-line="1063" selection-start-column="26" selection-end-line="1063" selection-end-column="26" />
+        <state relative-caret-position="549">
+          <caret line="645" column="37" selection-start-line="645" selection-start-column="37" selection-end-line="645" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/style.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="994">
-          <caret line="225" column="10" selection-start-line="225" selection-start-column="1" selection-end-line="225" selection-end-column="10" />
+        <state relative-caret-position="1751">
+          <caret line="103" selection-start-line="103" selection-end-line="103" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
+    <entry file="file://$PROJECT_DIR$/js/ros2d.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1232">
-          <caret line="378" selection-start-line="378" selection-end-line="378" />
-          <folding>
-            <element signature="e#3612#3705#0" />
-            <element signature="e#6688#7351#0" />
-            <element signature="e#7383#7830#0" />
-            <element signature="e#7934#7946#0" />
-            <element signature="e#8809#9645#0" />
-            <element signature="e#7852#9310#0" />
-            <element signature="e#9428#9529#0" />
-            <element signature="e#9593#10052#0" />
-            <element signature="e#10108#10208#0" />
-            <element signature="e#10257#11191#0" />
-            <element signature="e#11253#11359#0" />
-            <element signature="e#11411#11840#0" />
-          </folding>
+        <state relative-caret-position="18071">
+          <caret line="1063" column="26" selection-start-line="1063" selection-start-column="26" selection-end-line="1063" selection-end-column="26" />
         </state>
       </provider>
     </entry>

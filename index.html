@@ -230,7 +230,7 @@
   function activateService(service){
       var startPlutoNode = new ROSLIB.Service({
           ros : rbServer,
-          name : '/add_two_ints',
+          name : '/launch_pluto_node',
           serviceType : ' pluto_node_handler/PlutoService'
       });
       var request = new ROSLIB.ServiceRequest({
@@ -249,23 +249,45 @@
             request : service
         });
         stopPlutoNode.callService(request);
-        // var addTwoIntsClient = new ROSLIB.Service({
-        //     ros : ros,
-        //     name : '/add_two_ints',
-        //     serviceType : 'rospy_tutorials/AddTwoInts'
-        // });
-        //
-        // var request = new ROSLIB.ServiceRequest({
-        //     a : 1,
-        //     b : 2
-        // });
-        //
-        // addTwoIntsClient.callService(request, function(result) {
-        //     console.log('Result for service call on '
-        //         + addTwoIntsClient.name
-        //         + ': '
-        //         + result.sum);
-        // });
+    }
+
+    function parse_status(status) {
+        if(status == 'active') {
+            return 'img/led-circle-green-clipart.png';
+        } else if (status == 'stopped') {
+            return 'img/led-circle-yellow-clipart.png';
+        } else{
+            return 'img/led-circle-red-clipart.png';
+        }
+    }
+
+    function read_status(status_request, status_img) {
+        var check_service_status = new ROSLIB.Service({
+            ros : rbServer,
+            name : '/check_pluto_node',
+            serviceType : ' pluto_node_handler/PlutoService'
+        });
+        var request = new ROSLIB.ServiceRequest({
+            request : status_request
+        });
+
+        check_service_status.callService(request, function(result) {
+            console.log('check  ',request.request, ' result:', result );
+            status_img.src = parse_status(result.response)
+        });
+
+    }
+
+    function read_all_status() {
+        let service_name = ["minimal", "bringup", "navigate", "slam"];
+        let service_img = [minimal_status, bringup_status,navigate_status, slam_status ]; // declared in the body
+
+        for(let i = 0; i < service_name.length; i++) {
+            request = service_name[i];
+            img_src = service_img[i];
+            read_status(request, img_src);
+        }
+
     }
 
   function init() {
@@ -275,7 +297,7 @@
         range : 'min',
         min : 0,
         max : 300, // 300 -> 3 m/sec
-        value : 90,
+        value : 50,
         slide : function(event, ui) {
             $('#speed-label').html('Speed: ' + (ui.value/100.0).toPrecision(2) + ' m/s');
         }
@@ -288,7 +310,7 @@
         range : 'min',
         min : 0,
         max : 180,
-        value : 30,
+        value : 50,
         slide : function(event, ui) {
         $('#rotation-label').html('Rotation Speed: ' + (ui.value).toPrecision(2) + ' deg/sec');
         }
@@ -311,12 +333,17 @@
       $('#send-cmd-rate-label').html('Rate cmd:  ' + ($('#send-cmd-rate-slider').slider('value')).toPrecision(2) + ' msg per sec');
 
 
+      // service update
+      cmd_con_interval = setInterval(read_all_status, 10000);
+
       //Navigation, experimental
       // Create the main viewer.
+      var viewer_HEIGHT = 640
+      var viewer_WIDTH  = 480
       var viewer = new ROS2D.Viewer({
           divID : 'map',
-          width : 600,
-          height : 500
+          width : viewer_HEIGHT,
+          height : viewer_WIDTH
       });
       // Setup the map client.
       var gridClient = new ROS2D.OccupancyGridClient({
@@ -327,7 +354,133 @@
       gridClient.on('change', function(){
           viewer.scaleToDimensions(gridClient.currentGrid.width, gridClient.currentGrid.height);
       });
-  }
+
+      // Zoom code and image management, inspired from https://github.com/iki-wgt/iki_web_tools/blob/master/include/map.html
+      var zoomView = new ROS2D.ZoomView({
+          rootObject : viewer.scene
+      });
+
+      var panView = new ROS2D.PanView ({
+          rootObject : viewer.scene
+      });
+      var maxZoomLevel = 1000;
+      var zoomScale = 1.2; // original 1.1
+      var zoomLevel = maxZoomLevel;
+      var x_start_pan = 0;
+      var y_start_pan = 0;
+      var mouse_pressed = false;
+
+      viewer.scene.canvas.addEventListener('wheel', MouseWheelHandler)
+      viewer.scene.canvas.addEventListener('click', MouseClickHandler)
+     // viewer.scene.canvas.addEventListener('mousedown', MouseDn)
+     // viewer.scene.canvas.addEventListener('mouseup', MouseUp)
+
+      function MouseWheelHandler(e) {
+          // cross-browser wheel delta
+          var delta = e.deltaY //Math.max(-1, Math.min(1, (e.deltaY || -e.detail)));
+          if(delta > 0) {
+              if(zoomLevel > 0) {
+                  zoomView.zoom(zoomScale);
+                  zoomLevel = zoomLevel - 1;
+              }
+          }
+          else {
+              if(zoomLevel < maxZoomLevel) {
+                  zoomView.zoom(1/zoomScale);
+                  zoomLevel = zoomLevel + 1;
+              }
+          }
+          e.preventDefault();
+          return false;
+      }
+
+/*      function MouseDn(e) {
+          var mousePos = getMousePos(viewer.scene.canvas, e);
+          x_start_pan = mousePos.x
+          y_start_pan = mousePos.y
+      }
+
+      function MouseUp(e) {
+          var mousePos = getMousePos(viewer.scene.canvas, e);
+          panView.startPan (x_start_pan, y_start_pan);
+          panView.pan(mousePos.x, mousePos.y);
+
+      }*/
+
+      // added to manage click (pan inside the drawing canvas)
+      function MouseClickHandler(e) {
+          var mousePos = getMousePos(viewer.scene.canvas, e);
+          //  x_start_pan = mousePos.x - viewer_HEIGHT/2
+          //   y_start_pan = mousePos.y - viewer_WIDTH/2
+
+          if (mouse_pressed) {
+            var x_pan, y_pan;
+
+            if  (x_start_pan > mousePos.x) {
+                  x_pan = mousePos.x -20
+              } else {
+                  x_pan = mousePos.x +20
+              }
+            if  (y_start_pan > mousePos.x) {
+                  y_pan = mousePos.y -20
+              } else {
+                  y_pan = mousePos.y +20
+              }
+            panView.pan(x_pan, y_pan);
+          } else {
+            x_start_pan = mousePos.x
+            y_start_pan = mousePos.y
+
+            panView.startPan (mousePos.x, mousePos.y);
+            //pamnView.startPan (x_start_pan, y_start_pan);
+              // panView.pan(mousePos.x,mousePos.y);
+          }
+          mouse_pressed=!mouse_pressed
+
+          return false;
+      }
+
+      function getMousePos(canvas, evt) {
+          var rect = canvas.getBoundingClientRect();
+          return {
+              x: evt.clientX - rect.left,
+              y: evt.clientY - rect.top
+          };
+      }
+
+      viewer.scene.canvas.addEventListener('mousemove', function(evt) {
+          var mousePos = getMousePos(viewer.scene.canvas, evt);
+          zoomView.startZoom(mousePos.x, mousePos.y);
+          x_start_pan = mousePos.x
+          y_start_pan = mousePos.y
+      }, false);
+
+
+      /*//var mouse_pressed = false
+      viewer.scene.canvas.addEventListener('onmouseup', function(evt) {
+          var mousePos = getMousePos(viewer.scene.canvas, evt);
+        //  x_start_pan = mousePos.x - viewer_HEIGHT/2
+       //   y_start_pan = mousePos.y - viewer_WIDTH/2
+
+          //if (mouse_pressed) {
+            //  panView.pan(mousePos.x, mousePos.y);
+          //} else {
+            //  x_start_pan = mousePos.x
+            //  y_start_pan = mousePos.y
+           //   panView.startPan (x_start_pan, y_start_pan);
+          panView.startPan (x_start_pan, y_start_pan);
+          panView.pan(mousePos.x,mousePos.y);
+          //}
+          //mouse_pressed=!mouse_pressed
+      }, false);
+*/
+
+      // EXPERIMENTAL NOT TESTED
+      //function cancel() {
+      //    gridClient.navigator.cancelGoal();
+      //}
+
+  } // end init
 
     // Subscribing to  Topics
     // ----------------------
@@ -391,7 +544,8 @@
 
     // Calling a service
     // ----------------
-    </script>
+
+	</script>
   
 </head>
 
@@ -404,25 +558,11 @@
 	</header><!-- .header-->
 
 	<div class="middle">
-
 		<div class="container">
 			<main class="content">
                 <div id="map"></div>
                 <div class="btn-group" >
-                    <button id="btn-start-minimal" onclick="activateService('minimal')">Start minimal</button>
-                    <button id="btn-stop-minimal" onclick="stopService('minimal')">Stop minimal</button>
-
-                    <button id="btn-start-bringup" onclick="activateService('bringup')">Start bringup</button>
-                    <button id="btn-stop-bringup" onclick="stopService('bringup')">Stop bringup</button>
-
-                    <button id="btn-start-slam" onclick="activateService('slam')" >Start slam</button>
-                    <button id="btn-stop-slam" onclick="stopService('slam')" >Stop slam</button>
-
-                    <button id="btn-start-navigation" onclick="activateService('navigation')">Start nav</button>
-                    <button id="btn-stop-navigation" onclick="stopService('navigation')">Stop nav</button>
-                </div>
-                <div class="btn-group" >
-
+                    TODO: here should stay the commands for zooming the maps etc
                 </div>
 			</main><!-- .content -->
 		</div><!-- .container-->
@@ -433,6 +573,26 @@
             <p id="odom_feedback">ODOM</p>
             <p id="rawodom_feedback">RAW_ODOM</p>
             <p id="imu_feedback">IMU_DATA</p>
+            <div class="btn-group" >
+                <button id="btn-start-minimal" onclick="activateService('minimal')">Start minimal</button>
+                <button id="btn-stop-minimal" onclick="stopService('minimal')">Stop minimal</button>
+                <img id="minimal_status" src="img/led-circle-grey-clipart.png" width="40" height="40">
+            </div>
+            <div class="btn-group" >
+                <button id="btn-start-bringup" onclick="activateService('bringup')">Start bringup </button>
+                <button id="btn-stop-bringup" onclick="stopService('bringup')">Stop bringup </button>
+                <img id="bringup_status" src="img/led-circle-grey-clipart.png" width="40" height="40">
+            </div>
+            <div class="btn-group" >
+                <button id="btn-start-slam" onclick="activateService('slam')" >Start slam  </button>
+                <button id="btn-stop-slam" onclick="stopService('slam')" >Stop slam  </button>
+                <img id="slam_status" src="img/led-circle-grey-clipart.png" width="40" height="40">
+            </div>
+            <div class="btn-group" >
+                <button id="btn-start-navigate" onclick="activateService('navigate')">Start navigate</button>
+                <button id="btn-stop-navigate" onclick="stopService('navigate')">Stop navigate</button>
+                <img id="navigate_status" src="img/led-circle-grey-clipart.png" width="40" height="40">
+            </div>
 		</aside><!-- .left-sidebar -->
 
 	</div><!-- .middle-->
@@ -473,17 +633,17 @@
                 </div>
             </div> <!-- 25% -->
             <div class="colfooter-4">
-                Vel Y (m/s)
+               <!-- Vel Y (m/s)
                 <br>
-                <input type="text" id="in_vel_y" value="0.0" class="vel_input">
+                <input type="text" id="in_vel_y" value="0.0" class="vel_input">-->
+                Rot Z (deg/s)
+                <br>
+                <input type="text" id="in_rot_z" value="0.0" class="vel_input">
                 <div class="btn-group" >
                     <button id="btn-continuously" onclick="sendContinuously()"  class="vel_input">Send<br>Continuously</button>
                 </div>
             </div>
             <div class="colfooter-5">
-                Rot Z (deg/s)
-                <br>
-                <input type="text" id="in_rot_z" value="0.0" class="vel_input">
                 <div class="btn-group" >
                     <div id="send-cmd-rate-label"></div>
                     <div id="send-cmd-rate-slider"></div>
