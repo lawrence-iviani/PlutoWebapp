@@ -1,2 +1,2 @@
 # PlutoWebapp
-A tremendous elementar controller for plutobot
+A tremendous ineffective and elementar controller for plutobot
